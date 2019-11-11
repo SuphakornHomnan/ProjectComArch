@@ -4,7 +4,8 @@
 #include <string.h>
 #include <cstdio>
 #include <string>
-#include<cmath>
+#include <fstream>
+#include <cmath>
 #include <iostream>
 using namespace std;
 
@@ -15,15 +16,13 @@ int isNumber(char *);
 string translate(string, string, string, string, string, int);
 int bintodec(string);
 string label_str[100], opcode_str[100], arg0_str[100], arg1_str[100], arg2_str[100];
-
+int address = 0;
 int main(int argc, char *argv[])
 {
     char *inFileString, *outFileString;
     FILE *inFilePtr, *outFilePtr;
     char label[MAXLINELENGTH], opcode[MAXLINELENGTH], arg0[MAXLINELENGTH],
         arg1[MAXLINELENGTH], arg2[MAXLINELENGTH];
-    int address = 0;
-
     if (argc != 3)
     {
         printf("error: usage: %s <assembly-code-file> <machine-code-file>\n",
@@ -41,12 +40,14 @@ int main(int argc, char *argv[])
         printf("error in opening %s\n", inFileString);
         exit(1);
     }
-    outFilePtr = fopen(outFileString, "w");
-    if (outFilePtr == NULL)
-    {
-        printf("error in opening %s\n", outFileString);
-        exit(1);
-    }
+    // outFilePtr = fopen(outFileString, "w");
+    // if (outFilePtr == NULL)
+    // {
+    //     printf("error in opening %s\n", outFileString);
+    //     exit(1);
+    // }
+    //Write to Show.txt
+    ofstream myfile(outFileString);
 
     char line[MAXLINELENGTH];
     int count = 0;
@@ -75,47 +76,56 @@ int main(int argc, char *argv[])
     int addr = 0;
     string result[100];
     int sum[100];
-    for (int i = 0; i < address; i++)
-    {
-        
-        result[i] = translate(label_str[i], opcode_str[i], arg0_str[i], arg1_str[i], arg2_str[i], addr);
-        //ถ้าerror เมื่อประกาศopcodeที่นอกเหนือจากที่กำหนด
-        if (result[i] == "error")
-        {
-            cout << "error :" << opcode_str[i] << " is not found\n";
-            exit(1);
-        }
-        else
-        {
-            if(opcode_str[i]==".fill"){
-                //Do nothing
-                sum[i] = atoi(result[i].c_str());
-            }else{
-               sum[i] = bintodec(result[i]);
-            }
-        }
-        cout << "(address : " << i << ")" << result[i] << endl<<sum[i]<<endl;
-        addr++;
-    }
     fclose(inFilePtr);
+    if (myfile.is_open())
+    {
+        for (int i = 0; i < address; i++)
+        {
+
+            result[i] = translate(label_str[i], opcode_str[i], arg0_str[i], arg1_str[i], arg2_str[i], addr);
+            //ถ้าerror เมื่อประกาศopcodeที่นอกเหนือจากที่กำหนด
+            if (result[i] == "error")
+            {
+                cout << "error :" << opcode_str[i] << " is not found\n";
+                exit(1);
+            }
+            else
+            {
+                if (opcode_str[i] == ".fill")
+                {
+                    //Do nothing
+                    sum[i] = atoi(result[i].c_str());
+                }
+                else
+                {
+                    sum[i] = bintodec(result[i]);
+                }
+            }
+            //print answer to Show.txt file
+            myfile << "(address " << i << "): " << sum[i] << endl;
+            addr++;
+        }
+        myfile.close();
+        exit(0);
+    }
+    else
+    {
+        cout << "Unable to openfile\n";
+    }
     return (0);
 }
 
-
-
 int bintodec(string str)
 {
-    int sum = 0,minus=1;
-    for (int i = 0; i <32; i++)
+    int sum = 0, minus = 1;
+    for (int i = 0; i < 32; i++)
     {
         int a = str[i] - '0';
-        sum += a * pow(2,32-minus);
+        sum += a * pow(2, 32 - minus);
         minus++;
     }
     return sum;
 }
-
-
 
 string dectobin(string str)
 {
@@ -219,6 +229,33 @@ string offSet(string str)
     }
 }
 
+bool checklabel(string str)
+{
+    int count = 0;
+    for (int i = 0; i < address; i++)
+    {
+        if (!str.compare(label_str[i]))
+        {
+            //Do nothing
+            i = address;
+        }
+        else
+        {
+            count++;
+        }
+    }
+    count++;
+    if (count > address)
+    {
+        cout << "error : " << str << " is undefine!\n";
+        exit(1);
+    }
+    else
+    {
+        return 1;
+    }
+}
+
 string translate(string label, string opcode, string arg0, string arg1, string arg2, int addr)
 {
     string bit = "0000000";
@@ -235,7 +272,12 @@ string translate(string label, string opcode, string arg0, string arg1, string a
         }
         else
         {
-            for (int i = 0; i < 100; i++)
+            //เช็คก่อนว่า label ที่นำเข้ามามีการประกาศไว้ในคำสั่งหรือเปล่า
+            if (checklabel(arg2))
+            {
+                //Do nothing
+            }
+            for (int i = 0; i < address; i++)
             {
                 //เช็คหาว่าค่าstringมีค่าเป็นintเท่ากับเท่าไหร่
                 if (opcode_str[i] == ".fill")
@@ -243,14 +285,20 @@ string translate(string label, string opcode, string arg0, string arg1, string a
                     if (!arg2.compare(label_str[i]))
                     {
                         arg2 = arg0_str[i];
-                        i = 100;
                     }
                 }
 
                 else if (!arg2.compare(label_str[i]))
                 {
-                    arg2 = to_string(i);
-                    i = 100;
+                    cout << addr << " " << i << endl;
+                    if (i < addr)
+                    {
+                        arg2 = to_string(i - addr + 1);
+                    }
+                    else
+                    {
+                        arg2 = to_string(i);
+                    }
                 }
             }
         }
