@@ -1,4 +1,5 @@
 /* Assembler code fragment */
+#include "Method.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -34,18 +35,17 @@ int main(int argc, char *argv[])
     outFileString = argv[2];
     //read assembly instruction
     inFilePtr = fopen(inFileString, "r");
-    // std::cout<<inFilePtr<<std::endl;
     if (inFilePtr == NULL)
     {
         printf("error in opening %s\n", inFileString);
         exit(1);
     }
-    // outFilePtr = fopen(outFileString, "w");
-    // if (outFilePtr == NULL)
-    // {
-    //     printf("error in opening %s\n", outFileString);
-    //     exit(1);
-    // }
+    outFilePtr = fopen(outFileString, "w");
+    if (outFilePtr == NULL)
+    {
+        printf("error in opening %s\n", outFileString);
+        exit(1);
+    }
     //Write to Show.txt
     ofstream myfile(outFileString);
 
@@ -102,7 +102,7 @@ int main(int argc, char *argv[])
                 }
             }
             //print answer to Show.txt file
-            myfile << "(address " << i << "): " << sum[i] << endl;
+            myfile << sum[i] << endl;
             addr++;
         }
         myfile.close();
@@ -159,76 +159,6 @@ string dectobin(string str)
     }
 }
 
-string twoComplement(string str)
-{
-    int n = str.length();
-    char tmp[16], onesComp[16], twosComp[16];
-
-    strcpy(tmp, str.c_str());
-    int i, carry = 1;
-    /* Find ones complement of the binary number */
-    for (i = 0; i < 16; i++)
-    {
-        if (tmp[i] == '1')
-        {
-            onesComp[i] = '0';
-        }
-        else if (tmp[i] == '0')
-        {
-            onesComp[i] = '1';
-        }
-    }
-    onesComp[16] = '\0';
-
-    /*
-     * Add 1 to the ones complement
-     */
-    for (i = 16 - 1; i >= 0; i--)
-    {
-        if (onesComp[i] == '1' && carry == 1)
-        {
-            twosComp[i] = '0';
-        }
-        else if (onesComp[i] == '0' && carry == 1)
-        {
-            twosComp[i] = '1';
-            carry = 0;
-        }
-        else
-        {
-            twosComp[i] = onesComp[i];
-        }
-    }
-    twosComp[16] = '\0';
-    return twosComp;
-}
-
-string offSet(string str)
-{
-    int num = atoi(str.c_str());
-    char tmp[16];
-    if (num > 0)
-    {
-        string s = "";
-        for (int i = 0; i < 16; i++)
-        {
-            tmp[i] = '0' + (num % 2);
-            num /= 2;
-            s = tmp[i] + s;
-        }
-        cout << "\n";
-
-        return s;
-    }
-    else
-    {
-        string t;
-        t = str.substr(1, 2);
-        t = offSet(t);
-        return twoComplement(t);
-    }
-}
-
 bool checklabel(string str)
 {
     int count = 0;
@@ -279,21 +209,12 @@ string translate(string label, string opcode, string arg0, string arg1, string a
             }
             for (int i = 0; i < address; i++)
             {
-                //เช็คหาว่าค่าstringมีค่าเป็นintเท่ากับเท่าไหร่
-                if (opcode_str[i] == ".fill")
+                if (!arg2.compare(label_str[i]))
                 {
-                    if (!arg2.compare(label_str[i]))
-                    {
-                        arg2 = arg0_str[i];
-                    }
-                }
-
-                else if (!arg2.compare(label_str[i]))
-                {
-                    cout << addr << " " << i << endl;
+                    //cout << addr << " " << i << endl;
                     if (i < addr)
                     {
-                        arg2 = to_string(i - addr + 1);
+                        arg2 = to_string(i - addr - 1);
                     }
                     else
                     {
