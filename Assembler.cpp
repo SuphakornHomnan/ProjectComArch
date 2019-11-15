@@ -159,33 +159,6 @@ string dectobin(string str)
     }
 }
 
-bool checklabel(string str)
-{
-    int count = 0;
-    for (int i = 0; i < address; i++)
-    {
-        if (!str.compare(label_str[i]))
-        {
-            //Do nothing
-            i = address;
-        }
-        else
-        {
-            count++;
-        }
-    }
-    count++;
-    if (count > address)
-    {
-        cout << "error : " << str << " is undefine!\n";
-        exit(1);
-    }
-    else
-    {
-        return 1;
-    }
-}
-
 string translate(string label, string opcode, string arg0, string arg1, string arg2, int addr)
 {
     string bit = "0000000";
@@ -202,16 +175,19 @@ string translate(string label, string opcode, string arg0, string arg1, string a
         }
         else
         {
-            //เช็คก่อนว่า label ที่นำเข้ามามีการประกาศไว้ในคำสั่งหรือเปล่า
-            if (checklabel(arg2))
-            {
-                //Do nothing
-            }
             for (int i = 0; i < address; i++)
             {
                 if (!arg2.compare(label_str[i]))
                 {
-                    //cout << addr << " " << i << endl;
+                    //Detect offsetField over 16 bits
+                    if (opcode_str[i] == ".fill")
+                    {
+                        if (atoi(arg0_str[i].c_str()) > 32767 || atoi(arg0_str[i].c_str()) < -32767)
+                        {
+                            cout << "error : offsetField(" << atoi(arg0_str[i].c_str()) << ") over 16 bits!!!\n";
+                            exit(1);
+                        }
+                    }
                     if (i < addr)
                     {
                         arg2 = to_string(i - addr - 1);
@@ -266,7 +242,6 @@ string translate(string label, string opcode, string arg0, string arg1, string a
             return arg0;
         }
         //ถ้า arg0 เป็นตัวอักษร
-
         else
         {
             int addr = 0;
@@ -282,7 +257,7 @@ string translate(string label, string opcode, string arg0, string arg1, string a
             return arg0;
         }
     }
-    //หากใช้opcodeที่นอกเหนือจากคำสั่ง
+    //หากใช้ opcode ที่นอกเหนือจากคำสั่ง
     else
     {
         return "error";
