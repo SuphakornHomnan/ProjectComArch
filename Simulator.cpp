@@ -100,7 +100,7 @@ void action(string str, stateType *stateX)
     else if (str.substr(7, 3) == "001")
     {
         // destReg = regA (nand) regB
-        stateX->reg[convert_dec(str.substr(29, 3))] = !(stateX->reg[convert_dec(str.substr(10, 3))] & stateX->reg[convert_dec(str.substr(13, 3))]);
+        stateX->reg[convert_dec(str.substr(29, 3))] = ~(stateX->reg[convert_dec(str.substr(10, 3))] & stateX->reg[convert_dec(str.substr(13, 3))]);
     }
     else if (str.substr(7, 3) == "010")
     {
