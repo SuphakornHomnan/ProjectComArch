@@ -1,11 +1,11 @@
-#include<iostream>
-#include<string>
+#include <iostream>
+#include <string>
 #include <cstdio>
-#include<string.h>
-#include<cmath>
+#include <string.h>
+#include <cmath>
 using namespace std;
 
-string twoComplement(string str,int bit)
+string twoComplement(string str, int bit)
 {
     int n = str.length();
     char tmp[bit], onesComp[bit], twosComp[bit];
@@ -69,6 +69,6 @@ string offSet(string str)
         string t;
         t = str.substr(1, 2);
         t = offSet(t);
-        return twoComplement(t,16);
+        return twoComplement(t, 16);
     }
 }

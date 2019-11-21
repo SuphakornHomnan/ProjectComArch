@@ -66,7 +66,8 @@ int main(int argc, char *argv[])
     }
     string str;
     stateX->pc = 0;
-    while (stateX->pc < state.numMemory)
+    int count = 1;
+    while (stateX->pc < stateX->numMemory)
     {
         //Call printState 1 ครั้ง ก่อน instruction executes
         printState(stateX);
@@ -77,13 +78,15 @@ int main(int argc, char *argv[])
         if (halt == "halted")
         {
             //Call printState 1 ครั้ง ก่อน simulator exits.
+            stateX->pc++;
+            printf("total of %d instructions executed\n", count);
+            printf("Finish!!!!!!!!!!\n");
             printState(stateX);
-            cout<<"Amount of state.numMemory : "<<state.numMemory<<endl;
-            cout << "Finish!!!!!!!!!!\n";
             exit(0);
         }
         //Go to next instruction
         stateX->pc++;
+        count++;
     }
     return (0);
 }
@@ -91,63 +94,76 @@ int main(int argc, char *argv[])
 void action(string str, stateType *stateX)
 {
     //add instruction
-    if (str.substr(7, 3) == "000")
+    string opcode = str.substr(7, 3);
+    int a = convert_dec(str.substr(10, 3));
+    int b = convert_dec(str.substr(13, 3));
+    int dest = convert_dec(str.substr(29, 3));
+    int offset = offset_dec(str.substr(16, 16));
+    //printf("a= %d b = %d\n dest = %d offset = %d", a, b, dest, offset);
+    if (opcode == "000")
     {
         //     destReg   =  regA + regB
-        stateX->reg[convert_dec(str.substr(29, 3))] = stateX->reg[convert_dec(str.substr(10, 3))] + stateX->reg[convert_dec(str.substr(13, 3))];
+        stateX->reg[dest] = stateX->reg[a] + stateX->reg[b];
     }
     //nand instruction
-    else if (str.substr(7, 3) == "001")
+    else if (opcode == "001")
     {
         // destReg = regA (nand) regB
-        stateX->reg[convert_dec(str.substr(29, 3))] = !(stateX->reg[convert_dec(str.substr(10, 3))] & stateX->reg[convert_dec(str.substr(13, 3))]);
+        stateX->reg[dest] = ~(stateX->reg[a] & stateX->reg[b]);
     }
-    else if (str.substr(7, 3) == "010")
+    else if (opcode == "010")
     {
         // regB = Memory[regA + offsetField]
-        //cout<<"Enter\n";
-        //cout<<offset_dec(str.substr(16, 16))<<"\t"<<convert_dec(str.substr(10, 3))<<endl;
-        stateX->reg[convert_dec(str.substr(13, 3))] = stateX->mem[stateX->reg[convert_dec(str.substr(10, 3))] + offset_dec(str.substr(16, 16))];
+
+        stateX->reg[b] = stateX->mem[stateX->reg[a] + offset];
     }
-    else if (str.substr(7, 3) == "011")
+    else if (opcode == "011")
     {
         //Memory[regA + offsetField] = regB
-        stateX->mem[stateX->reg[convert_dec(str.substr(10, 3))] + offset_dec(str.substr(16, 16))] = stateX->reg[convert_dec(str.substr(13, 3))];
+        stateX->mem[stateX->reg[a] + offset] = stateX->reg[b];
+        //ถ้าเกิดมีการนำค่ามาเพิ่มในmemด้วยที่ตำแหน่งนั้นยังไม่เคยใช้มาก่อน ให้เพิ่มnumMemory เพื่อให้printStateทราบว่ามีการใช้memตัวใหม่
+
+        if ((stateX->numMemory - 1) < (stateX->reg[a] + offset))
+        {
+            stateX->numMemory++;
+        }
     }
-    else if (str.substr(7, 3) == "100")
+    else if (opcode == "100")
     {
         // regA == regB
-        if (stateX->reg[convert_dec(str.substr(10, 3))] == stateX->reg[convert_dec(str.substr(13, 3))])
+        if (stateX->reg[a] == stateX->reg[b])
         {
-            cout << offset_dec(str.substr(16, 16)) << endl;
-            stateX->pc = stateX->pc + offset_dec(str.substr(16, 16));
+            stateX->pc = stateX->pc + offset;
         }
         else
         {
             //Do nothing
         }
     }
-    else if (str.substr(7, 3) == "101")
+    else if (opcode == "101")
     {
-        if (convert_dec(str.substr(10, 3)) == convert_dec(str.substr(13, 3)))
+        if (a == b)
         {
             // regA และ regB คือregister ตัวเดียวกัน ให้เก็บ PC+1 ก่อน
-            stateX->reg[convert_dec(str.substr(10, 3))] = stateX->pc + 1;
-                }
+            stateX->reg[a] = stateX->pc + 1;
+            //jump to pc+1
+            stateX->pc = stateX->pc + 1;
+        }
+
         else
         {
             //เก็บค่า pc+1 ใน regB
-            stateX->reg[convert_dec(str.substr(13, 3))] = stateX->pc + 1;
+            stateX->reg[b] = stateX->pc + 1;
             //กระโดดไปที่ address ที่ถูกเก็บไว้ในregA
-            stateX->pc = stateX->reg[convert_dec(str.substr(10, 3))];
+            stateX->pc = stateX->reg[a] - 1;
         }
     }
-    else if (str.substr(7, 3) == "110")
+    else if (opcode == "110")
     {
         halt = "halted";
-        cout << " halt simulator!!!!!\n";
+        printf("machine halted\n");
     }
-    else if (str.substr(7, 3) == "111")
+    else if (opcode == "111")
     {
         //Do nothing
     }
