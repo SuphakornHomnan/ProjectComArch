@@ -73,6 +73,23 @@ int main(int argc, char *argv[])
         address++;
         count++;
     }
+
+    for (int i = 0; i < address; i++)
+    {
+        for (int j = 0; j < address; j++)
+        {
+            //detect error same label
+            if (label_str[i] != "      ")
+            {
+                if (label_str[i] == label_str[j])
+                {
+                    printf("error same %s label\n", label_str[i].c_str());
+                    exit(1);
+                }
+            }
+        }
+    }
+
     int addr = 0;
     string result[100];
     int sum[100];
@@ -84,7 +101,7 @@ int main(int argc, char *argv[])
 
             result[i] = translate(label_str[i], opcode_str[i], arg0_str[i], arg1_str[i], arg2_str[i], addr);
             //ถ้าerror เมื่อประกาศopcodeที่นอกเหนือจากที่กำหนด
-            cout<<"address "<<i<<"   "<<result[i]<<endl;
+            cout << "address " << i << "   " << result[i] << endl;
             if (result[i] == "error")
             {
                 cout << "error :" << opcode_str[i] << " is not found\n";
@@ -183,7 +200,7 @@ string translate(string label, string opcode, string arg0, string arg1, string a
                     //Detect offsetField over 16 bits
                     if (opcode_str[i] == ".fill")
                     {
-                        if (atoi(arg0_str[i].c_str()) > 32767 || atoi(arg0_str[i].c_str()) < -32767) 
+                        if (atoi(arg0_str[i].c_str()) > 32767 || atoi(arg0_str[i].c_str()) < -32767)
                         {
                             cout << "error : offsetField(" << atoi(arg0_str[i].c_str()) << ") over 16 bits!!!\n";
                             exit(1);

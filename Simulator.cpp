@@ -109,11 +109,7 @@ void action(string str, stateType *stateX)
     else if (opcode == "001")
     {
         // destReg = regA (nand) regB
-<<<<<<< HEAD
         stateX->reg[dest] = ~(stateX->reg[a] & stateX->reg[b]);
-=======
-        stateX->reg[convert_dec(str.substr(29, 3))] = ~(stateX->reg[convert_dec(str.substr(10, 3))] & stateX->reg[convert_dec(str.substr(13, 3))]);
->>>>>>> eb2694563f51979534abf124b7a83822f90d93bb
     }
     else if (opcode == "010")
     {
