@@ -1,4 +1,5 @@
 # ProjectComArch
-- Assembler   (85%) left testing,check error( same labels) ,optimize code
-- Simulator   (85%) testing , find bug , optimize code
-- Multiple assembly program (0%)
+- Assembler   (99%) optimize code
+- Simulator   (99%) optimize code
+- Multiple assembly program (100%)
+- Combination (0%)
