@@ -79,13 +79,18 @@ int main(int argc, char *argv[])
         for (int j = 0; j < address; j++)
         {
             //detect error same label
-            if (label_str[i] != "      ")
+            // cout<<"\nSh"<<label_str[i]<<"Sh"<<endl;
+            if (label_str[i] != "       ")
             {
-                if (label_str[i] == label_str[j])
+                if(i!=j){
+                    if (label_str[i] == label_str[j])
                 {
+                    cout<<"Enter\n";
                     printf("error same %s label\n", label_str[i].c_str());
                     exit(1);
                 }
+                }
+                
             }
         }
     }
