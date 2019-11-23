@@ -3,6 +3,8 @@
        lw 0 4 one       load 4 with 1
        lw 0 6 neg1      load 6 with -1
        lw 0 7 loop      load 7 with amount of mutiplication cycle 
+       beq 0 2 19       ถ้า $2 == 0 จะจบการทำงาน
+       beq 4 2 18       ถ้า $2 == 1 จะจบการทำงาน
 re     add 3 6 3        x - 1
 mul    nand 3 4 5       check ตัวคูณแต่ละbit ว่า เท่ากับ 0 หรือไม่
        nand 5 5 5       โดยการ sll ที่ $4 แล้วนำมา AND ผ่านการ NAND 2 รอบ เก็บไว้ที่ $5
@@ -20,8 +22,10 @@ mul    nand 3 4 5       check ตัวคูณแต่ละbit ว่า เ
        lw 0 7 loop      reset ค่า loop
        beq 0 0 re
        noop
-done   halt
+done   halt             end
+       lw 0 2 one       load 2 with 1
+       beq 0 0 done
 loop   .fill 15
 neg1   .fill -1
 one    .fill 1
-input  .fill 6
+input  .fill 12
