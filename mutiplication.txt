@@ -13,7 +13,7 @@ mul    nand 3 4 5       check ตัวคูณแต่ละbit ว่า เ
        beq 7 0 2     ถ้า ตัวloop มีค่าเท่ากับ 0 ให้จบการทำงาน
        beq 0 0 mul      กระโดดกลับไปทำคูณใหม่
        noop
-done   halt
+done   halt                 end
 loop   .fill 15
 neg1   .fill -1
 one    .fill 1

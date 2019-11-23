@@ -76,21 +76,20 @@ int main(int argc, char *argv[])
 
     for (int i = 0; i < address; i++)
     {
-        for (int j = 0; j < address; j++)
+        if (label_str[i] != "       ")
         {
-            //detect error same label
-            // cout<<"\nSh"<<label_str[i]<<"Sh"<<endl;
-            if (label_str[i] != "       ")
+
+            for (int j = 0; j < address; j++)
             {
-                if(i!=j){
-                    if (label_str[i] == label_str[j])
+                //detect error same label
+                // cout<<"\nSh"<<label_str[i]<<"Sh"<<endl;
+
+                if (label_str[i] == label_str[j] && i != j)
                 {
-                    cout<<"Enter\n";
+                    cout << "Enter\n";
                     printf("error same %s label\n", label_str[i].c_str());
                     exit(1);
                 }
-                }
-                
             }
         }
     }
@@ -116,7 +115,6 @@ int main(int argc, char *argv[])
             {
                 if (opcode_str[i] == ".fill")
                 {
-                    //Do nothing
                     sum[i] = atoi(result[i].c_str());
                 }
                 else
@@ -285,6 +283,7 @@ string translate(string label, string opcode, string arg0, string arg1, string a
     {
         return "error";
     }
+    return 0;
 }
 
 int isNumber(char *string)
