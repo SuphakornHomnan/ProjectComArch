@@ -76,14 +76,14 @@ int main(int argc, char *argv[])
 
     for (int i = 0; i < address; i++)
     {
-        for (int j = 0; j < address; j++)
+        //detect error same label
+        if (label_str[i] != "       ")
         {
-            //detect error same label
-            if (label_str[i] != "      ")
+            for (int j = 0; j < address; j++)
             {
-                if (label_str[i] == label_str[j])
+                if (label_str[i] == label_str[j] && i != j)
                 {
-                    printf("error same %s label\n", label_str[i].c_str());
+                    printf("\nerror same %s label\n", label_str[i].c_str());
                     exit(1);
                 }
             }
